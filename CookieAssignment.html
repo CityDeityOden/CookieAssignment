@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<head>
+<title>CookieAssignment</title>
+<link rel="stylesheet" href="CookieStylesheet.css">
+</head>
+<body>
+    <div class="box">
+        <h1>Welcome To My Cookie Webpage</h1>
+        
+        <div id="inputSection" style="display: none;">
+            <p>Please enter your name:</p>
+            <input type="text" id="nameInput" placeholder="Input Name" />
+            <button onclick="saveName()">Submit</button>
+        </div>
+        
+        <div id="welcomeSection" style="display: none;">
+            <div class="info">
+                <p id="welcomeText"></p>
+                <p id="lastVisitText"></p>
+            </div>
+            <button class="reset" onclick="clearCookies()">Reset</button>
+        </div>
+    </div>
+
+    <script>
+        function setCookie(name, value, days) {
+            const d = new Date();
+            d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
+            document.cookie = name + "=" + value + ";expires=" + d.toUTCString() + ";path=/";
+        }
+        
+        function getCookie(name) {
+            const nameEQ = name + "=";
+            const ca = document.cookie.split(';');
+            for (let i = 0; i < ca.length; i++) {
+                let c = ca[i].trim();
+                if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length);
+            }
+            return null;
+        }
+        
+        function deleteCookie(name) {
+            document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/";
+        }
+        
+        function saveName() {
+            const name = document.getElementById('nameInput').value.trim();
+            if (name === '') {
+                alert('Please enter your name!');
+                return;
+            }
+            
+            setCookie('visitorName', name, 365);
+            setCookie('lastVisit', new Date().toISOString(), 365);
+            showWelcomeMessage(name, null);
+        }
+        
+        function showWelcomeMessage(name, lastVisit) {
+            document.getElementById('inputSection').style.display = 'none';
+            document.getElementById('welcomeSection').style.display = 'block';
+            
+            if (lastVisit) {
+                const date = new Date(lastVisit);
+                document.getElementById('welcomeText').innerHTML = '<strong>Welcome back, ' + name + '!</strong>';
+                document.getElementById('lastVisitText').textContent = 'Yout last visit was on ' + date.toLocaleString();
+            } else {
+                document.getElementById('welcomeText').innerHTML = '<strong>Hello, ' + name + '!</strong>';
+                document.getElementById('lastVisitText').textContent = 'This is your first time here.';
+            }
+            
+            setCookie('lastVisit', new Date().toISOString(), 365);
+        }
+        
+        function clearCookies() {
+            deleteCookie('visitorName');
+            deleteCookie('lastVisit');
+            location.reload();
+        }
+        
+        window.onload = function() {
+            const name = getCookie('visitorName');
+            const lastVisit = getCookie('lastVisit');
+            
+            if (name) {
+                showWelcomeMessage(name, lastVisit);
+            } else {
+                document.getElementById('inputSection').style.display = 'block';
+            }
+        };
+        
+        document.getElementById('nameInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') saveName();
+        });
+    </script>
+</body>
+</html>
